@@ -30,7 +30,7 @@
     <div id="map"></div>
     <td><div id="sidebar"></div></td>
     <script src="constants.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?language=ja&region=JP&key=[API キーを入力してください]&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?language=ja&region=JP&key=AIzaSyDVFt8okenp_b8Wz5T6pR6hVi9BziqC-4E&callback=initMap" async defer></script>
     <script>
       var map;
       var marker = [];
@@ -54,11 +54,11 @@
 
       function initMap() {
         var target = document.getElementById('map');
-        var centerp = {lat: 35.6679191, lng: 139.4606805};
+        var centerp = {lat: 33.591431, lng: 130.415039};
 
         map = new google.maps.Map(target, {
           center: centerp,
-          zoom: 7,
+          zoom: 13,
         });
 
         var request = new XMLHttpRequest();
@@ -84,10 +84,11 @@
           map: map
         });
 
-        var info = '<div style="font-size:18px;font-weight:bold;margin-bottom:10px;">' + data['名称'] + '</div>';
+        var info = '<div style="font-size:8px;font-weight:bold;">' + data['名称'] + '</div>';
         infoWindow[i] = new google.maps.InfoWindow({
           content: info
         });
+        infoWindow[i].open(map, marker[i]);
 
         markerEvent(i);
       }
@@ -98,9 +99,10 @@
           var latitude = markerData[i]['緯度'];
           if (!latitude) { continue; }
           addMarker(i, markerData[i]);
-          var name = markerData[i]['名称'];
+          var name = markerData[i]['住所'];
+          var price = markerData[i]['金額'];
 
-          sidebar_html += `<b>${i + 1}</b> <a href="javascript:openWindow(${i})">${name}<\/a><br />`;
+          sidebar_html += `<b>${i + 1}</b> <a href="javascript:openWindow(${i})">${name}:${price}<\/a><br />`;
         }
 
         document.getElementById("sidebar").innerHTML = `<a target="_blank" href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit?usp=sharing">元データ(Google スプレッドシート)</a><br /><a target="_blank" href="https://github.com/champierre/sheet2gmap">ソースコード(GitHub)</a><br /><br />` + sidebar_html;
