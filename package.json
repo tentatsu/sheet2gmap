@@ -1,0 +1,31 @@
+{
+  "name": "Starter-kit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dung Vo <dungvt@concrete-corp.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "bower": "^1.2.6",
+    "browser-sync": "^2.18.8",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-compass": "^2.1.0",
+    "gulp-contrib-clean": "0.0.2",
+    "gulp-file-include": "^1.1.0",
+    "gulp-imagemin": "^3.2.0",
+    "gulp-minify-css": "^1.2.4",
+    "gulp-plumber": "^1.1.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-uglify": "^2.1.2",
+    "gulp-useref": "^3.1.2",
+    "node-sass": "^4.11.0",
+    "run-sequence": "^1.2.2"
+  },
+  "dependencies": {
+    "fancybox": "^2.1.5"
+  }
+}
