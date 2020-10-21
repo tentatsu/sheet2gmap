@@ -7,6 +7,12 @@
       #header {
         height: 10%;
       }
+      @media (max-width: 767px) {
+        #header {
+          font-size: 20px;
+        }
+
+      }
       #map {
         height: 90%;
       }
@@ -31,12 +37,12 @@
   </head>
   <body>
     <div id="header">        
-        <input type="checkbox" name="age" value="０歳児" checked>０歳児
-        <input type="checkbox" name="age" value="１歳児" checked>１歳児
-        <input type="checkbox" name="age" value="２歳児" checked>２歳児
-        <input type="checkbox" name="age" value="３歳児" checked>３歳児
-        <input type="checkbox" name="age" value="４歳児" checked>４歳児
-        <input type="checkbox" name="age" value="５歳児" checked>５歳児
+        <input type="checkbox" name="age" value="０歳児" id="age0" checked><label for="age0">０歳児</label>
+        <input type="checkbox" name="age" value="１歳児" id="age1" checked><label for="age1">１歳児</label>
+        <input type="checkbox" name="age" value="２歳児" id="age2" checked><label for="age2">２歳児</label>
+        <input type="checkbox" name="age" value="３歳児" id="age3" checked><label for="age3">３歳児</label>
+        <input type="checkbox" name="age" value="４歳児" id="age4" checked><label for="age4">４歳児</label>
+        <input type="checkbox" name="age" value="５歳児" id="age5" checked><label for="age5">５歳児</label>
 <br>
         <input type="checkbox" name="nosankaku" value="1" >△を含めない
 
