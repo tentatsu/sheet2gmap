@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>sheet2gmap</title>
+    <style>
+      #header {
+        height: 10%;
+      }
+      #map {
+        height: 90%;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #sidebar {
+        position: absolute;
+        top: 10%;
+        left: 72%;
+        width: 25%;
+        height: 40%;
+        border: 1px solid #666;
+        padding: 6px;
+        background-color: white;
+        font-family: Meriyo UI;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">        
+        <input type="checkbox" name="age" value="０歳児" checked>０歳児
+        <input type="checkbox" name="age" value="１歳児" checked>１歳児
+        <input type="checkbox" name="age" value="２歳児" checked>２歳児
+        <input type="checkbox" name="age" value="３歳児" checked>３歳児
+        <input type="checkbox" name="age" value="４歳児" checked>４歳児
+        <input type="checkbox" name="age" value="５歳児" checked>５歳児
+<br>
+        <input type="checkbox" name="nosankaku" value="1" >△を含めない
+
+    </div>
+    <div id="map"></div>
+    <td><div id="sidebar"></div></td>
+    <script src="constants_hoikuen.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?language=ja&region=JP&key=AIzaSyDVFt8okenp_b8Wz5T6pR6hVi9BziqC-4E&callback=initMap" async defer></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<script>
+      var map;
+      var marker = [];
+      var infoWindow = [];
+      var windowOpened;
+      var ages = ["０歳児","１歳児","２歳児","３歳児","４歳児","５歳児"];
+
+      function parseData(data) {
+        var keys = data.values[0];
+        var markerData = [];
+        data.values.forEach(function(value, i) {
+          if (i > 0) {
+            var hash = {};
+            value.forEach(function(d, j) {
+              hash[keys[j]] = d;
+            });
+            markerData.push(hash);
+          }
+        });
+        return markerData;
+      }
+
+      function initMap() {
+        var target = document.getElementById('map');
+        var centerp = {lat: 33.591431, lng: 130.415039};
+
+        map = new google.maps.Map(target, {
+          center: centerp,
+          zoom: 13,
+        });
+
+        var request = new XMLHttpRequest();
+        request.open('GET', `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/sheet1?key=${API_KEY}`, true);
+        request.responseType = 'json';
+
+        request.onload = function () {
+          var data = this.response;
+          var markerData = parseData(data);
+          setData(markerData);
+        };
+
+        request.send();
+
+      }
+
+      function addMarker(i, data) {
+        is_view = false;
+        if (data['経度'] == '#N/A') return;
+        
+        var markerLatLng = new google.maps.LatLng({
+          lat: Number(data['緯度']),
+          lng: Number(data['経度'])
+        });
+        icon_color = 'red';
+        if (data['区分'] != '保育所') {
+          icon_color = 'blue'
+        }
+        marker[i] = new google.maps.Marker({
+          position: markerLatLng,
+          map: map,
+          icon: "https://maps.google.com/mapfiles/ms/icons/"+icon_color+"-dot.png"
+        });
+        $(ages).each(function(k,v){
+          marker[i].set(v, data[v]);
+        })
+
+        var info = '<div style="font-size:8px;font-weight:bold;">' + data['区分'] + "_" + data['施設名']+"<ul>";
+        $(ages).each(function(k,v){
+          info += '<li>'+v+": "+data[v]+'</li>';
+        })
+
+        info += '</ul></div>';
+        infoWindow[i] = new google.maps.InfoWindow({
+          content: info
+        });
+        // infoWindow[i].open(map, marker[i]);
+
+        markerEvent(i);
+      }
+
+      function setData(markerData){
+        var sidebar_html = "";
+        for (var i = 0; i < markerData.length; i++) {
+          addMarker(i, markerData[i]);
+          var name = markerData[i]['住所'];
+
+          // sidebar_html += `<b>${i + 1}</b> <a href="javascript:openWindow(${i})">${name}<\/a><br />`;
+        }
+
+        document.getElementById("sidebar").innerHTML = `<a target="_blank" href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit?usp=sharing">元データ(Google スプレッドシート)</a><br /><a target="_blank" href="https://github.com/champierre/sheet2gmap">ソースコード(GitHub)</a><br /><br />` + sidebar_html;
+      }
+
+      function markerEvent(i) {
+        marker[i].addListener('click', function() {
+          openWindow(i);
+        });
+      }
+
+      function openWindow(i) {
+        if(windowOpened){
+          windowOpened.close();
+        }
+        infoWindow[i].open(map, marker[i]);
+        windowOpened = infoWindow[i];
+      }
+
+      function setMapOnAll(map) {
+        for (let i = 0; i < marker.length; i++) {
+          if (marker[i]){
+            marker[i].setMap(map);
+          }
+        }
+      }
+
+      // Removes the markers from the map, but keeps them in the array.
+      function clearMarkers() {
+        setMapOnAll(null);
+      }
+
+      window.onload = function () {
+          initMap();
+          $("[name='age'],[name='nosankaku']").on("change", function(){
+          clearMarkers();
+          for (let i = 0; i < marker.length; i++) {
+            if (!marker[i]) continue;
+            is_view = true;
+            $("[name='age']:checked").each(function() {
+              a = $(this).val()
+              m = marker[i].get(a)
+              if (marker[i].get(a) == '－') {
+                is_view = false;
+              }
+              $("[name='nosankaku']:checked").each(function() {
+                if (marker[i].get(a) == '△') {
+                  is_view = false;
+                }
+
+              });
+            });
+            if (is_view) {
+                marker[i].setMap(map);
+            }
+          }
+        });
+      }
+</script>
+  </body>
+</html>
